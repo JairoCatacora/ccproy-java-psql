@@ -1,0 +1,26 @@
+services:
+  api-psql-java:
+    build: .
+    image: jairocatacora/api-psql-java
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - api-network
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: database
+    ports:
+      - "5432:5432"
+    networks:
+      - api-network
+
+networks:
+   api-network:
+     driver: bridge
