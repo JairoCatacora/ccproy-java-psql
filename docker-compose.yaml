@@ -1,9 +1,11 @@
 services:
   api-psql-java:
-    build: .
-    image: jairocatacora/api-psql-java
+    # build: .
+    image: jairocatacora/api-psql-java:0.0.9
     ports:
       - "8080:8080"
+    environment:
+      -  SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/database
     depends_on:
       - postgres
     networks:
@@ -13,8 +15,8 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres # 123
+      POSTGRES_USER: postgres # user1
       POSTGRES_DB: database
     ports:
       - "5432:5432"

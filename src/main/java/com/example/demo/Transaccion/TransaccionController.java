@@ -15,7 +15,7 @@ public class TransaccionController {
 
     @GetMapping("/all")
     public ResponseEntity<List<TransaccionDto>> getTransacciones(){
-        List<TransaccionDto> transacciones = transaccionService.getTransaccionesDto(null);
+        List<TransaccionDto> transacciones = transaccionService.getAllTransacciones();
         return new ResponseEntity<>(transacciones, HttpStatus.OK);
     }
 
@@ -31,14 +31,14 @@ public class TransaccionController {
         return new ResponseEntity<>(transaccionDto, HttpStatus.CREATED);
     }
 
-    @PutMapping("/")
-    public ResponseEntity<TransaccionDto> updateTransaccion(@RequestBody TransaccionDto transaccionDto){
-        transaccionService.updateTransaccion(transaccionDto);
+    @PutMapping("/{id}")
+    public ResponseEntity<TransaccionDto> updateTransaccion(@RequestBody TransaccionDto transaccionDto, @PathVariable Long id){
+        transaccionService.updateTransaccion(transaccionDto, id);
         return new ResponseEntity<>(transaccionDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/")
-    public ResponseEntity<Void> deleteTransaccion(@RequestBody Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTransaccion(@PathVariable Long id){
         transaccionService.deleteTransaccion(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

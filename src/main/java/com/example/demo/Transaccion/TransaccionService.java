@@ -17,8 +17,27 @@ public class TransaccionService {
     @Autowired
     private TipoTransaccionRepository tipoTransaccionRepository;
 
-    public List<Transaccion> getTransacciones(){
-        return transaccionRepository.findAll();
+    public List<TransaccionDto> getAllTransacciones(){
+        List<TransaccionDto> res = new ArrayList<>();
+
+        for (Transaccion transaccion : transaccionRepository.findAll()) {
+            TransaccionDto transaccionDto = new TransaccionDto();
+            transaccionDto.setId(transaccion.getId());
+            transaccionDto.setMonto(transaccion.getMonto());
+            transaccionDto.setFecha(transaccion.getFecha());
+            transaccionDto.setEstado(transaccion.getEstado());
+
+            TipoTransaccion tipoTransaccion = transaccion.getTipoTransaccion();
+            TipoTransaccionDto tipoTransaccionDto = new TipoTransaccionDto();
+            tipoTransaccionDto.setId(tipoTransaccion.getId());
+            tipoTransaccionDto.setTipo(tipoTransaccion.getTipo());
+            tipoTransaccionDto.setDescripcion(tipoTransaccion.getDescripcion());
+
+            transaccionDto.setTipoTransaccionDto(tipoTransaccionDto);
+            res.add(transaccionDto);
+        }
+
+        return res;
     }
 
     public List<TransaccionDto> getTransaccionesDto( List<Long> transaccionesids){
@@ -48,37 +67,38 @@ public class TransaccionService {
     public void createTransaccion(TransaccionDto transaccionDto){
         Transaccion transaccion = new Transaccion();
         transaccion.setId(transaccionDto.getId());
+        transaccion.setEstado(transaccionDto.getEstado());
         transaccion.setMonto(transaccionDto.getMonto());
         transaccion.setFecha(transaccionDto.getFecha());
 
-        TipoTransaccion tipoTransaccion = tipoTransaccionRepository.findById(transaccionDto.getTipoTransaccionDto().getId()).get();
+        Long idTT = transaccionDto.getTipoTransaccionDto().getId();
 
-        if (tipoTransaccion != null) {
+        TipoTransaccion tipoTransaccion = new TipoTransaccion();
+        if (!tipoTransaccionRepository.findById(idTT).isPresent()) {
             tipoTransaccion.setTipo(transaccionDto.getTipoTransaccionDto().getTipo());
             tipoTransaccion.setDescripcion(transaccionDto.getTipoTransaccionDto().getDescripcion());
-            transaccion.setTipoTransaccion(tipoTransaccion);
 
-            transaccionRepository.save(transaccion);
+            tipoTransaccionRepository.save(tipoTransaccion);
         }
-        throw new IllegalArgumentException("El tipo de transaccion no existe");
+        else {
+            tipoTransaccion = tipoTransaccionRepository.findById(idTT).get();
+        }
+
+        transaccion.setTipoTransaccion(tipoTransaccion);
+
+        transaccionRepository.save(transaccion);
+
     }
 
-    public void updateTransaccion(TransaccionDto transaccionDto){
-        Transaccion transaccion = transaccionRepository.findById(transaccionDto.getId()).get();
-        transaccion.setMonto(transaccionDto.getMonto());
-        transaccion.setFecha(transaccionDto.getFecha());
-        transaccion.setEstado(transaccionDto.getEstado());
-
-        TipoTransaccion tipoTransaccion = tipoTransaccionRepository.findById(transaccionDto.getTipoTransaccionDto().getId()).get();
-
-        if (tipoTransaccion != null) {
-            tipoTransaccion.setTipo(transaccionDto.getTipoTransaccionDto().getTipo());
-            tipoTransaccion.setDescripcion(transaccionDto.getTipoTransaccionDto().getDescripcion());
-            transaccion.setTipoTransaccion(tipoTransaccion);
+    public void updateTransaccion(TransaccionDto transaccionDto, Long id){
+        if (transaccionRepository.findById(id).isPresent()) {
+            Transaccion transaccion = transaccionRepository.findById(id).get();
+            transaccion.setMonto(transaccionDto.getMonto());
+            transaccion.setFecha(transaccionDto.getFecha());
+            transaccion.setEstado(transaccionDto.getEstado());
 
             transaccionRepository.save(transaccion);
         }
-        throw new IllegalArgumentException("El tipo de transaccion no existe");
     }
 
     public void deleteTransaccion(Long id){
